@@ -16,3 +16,9 @@ rails new \
   CHANGE_TO_YOUR_RAILS_APP_NAME
 
 ```
+
+## Funcionalidades
+
+### Hot Reload
+
+Utiliza https://github.com/hotwired/spark para auto-reload
