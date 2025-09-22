@@ -11,10 +11,9 @@ Inicie uma nova aplicação rais com o inspire template. Por padrão utiliza esb
 ```
 rails new \
   -d postgresql \
-  -j esbuild
-  -m [address] \
+  -j esbuild \
+  -m https://raw.githubusercontent.com/RobertoBarros/inspire-template/refs/heads/main/inspire.rb \
   CHANGE_TO_YOUR_RAILS_APP_NAME
-
 ```
 
 ## Funcionalidades
