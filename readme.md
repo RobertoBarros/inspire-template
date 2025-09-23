@@ -21,3 +21,10 @@ rails new \
 ### Hot Reload
 
 Utiliza https://github.com/hotwired/spark para auto-reload
+
+### Tailwind
+
+O framework de CSS Tailwind é instalado e configurado automaticamente usando o cssbundling-rails.
+O arquivo principal de estilos é `app/assets/stylesheets/application.css`
+
+### DaisyUI
