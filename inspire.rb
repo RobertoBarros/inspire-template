@@ -59,6 +59,22 @@ inject_into_file "Gemfile", before: "group :development, :test do\n" do
 end
 run "bundle install --quiet"
 
+# Devise for authentication
+inject_into_file "Gemfile", before: "group :development, :test do\n" do
+  <<~RUBY
+    # Devise for authentication
+    gem "devise"
+
+  RUBY
+end
+run "bundle install --quiet"
+
+# Install Devise and configure default URL options
+run "bin/rails generate devise:install"
+
+# Generate Devise User model
+run "bin/rails generate devise User"
+
 # Configure ApplicationController with authentication and default form builder
 inject_into_class "app/controllers/application_controller.rb", "ApplicationController" do
   "  before_action :authenticate_user!\n  default_form_builder TailwindBuilder\n"
@@ -70,9 +86,10 @@ tmp_dir = "tmp/inspire-template-clone"
 repository = "https://github.com/RobertoBarros/inspire-template.git"
 run %(git clone --depth=1 #{repository} #{tmp_dir})
 
-# Copy tailwind-form components
+# Copy tailwind-form components and helpers
 run "mkdir -p app/components/tailwind_form"
 run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
+run "cp #{tmp_dir}/helpers/* app/helpers/"
 
 # remove the temporary directory
 run %(rm -rf #{tmp_dir})
