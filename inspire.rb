@@ -72,7 +72,7 @@ run %(git clone --depth=1 #{repository} #{tmp_dir})
 
 # Copy tailwind-form components
 run "mkdir -p app/components/tailwind_form"
-run "cp #{tmp_dir}/app/components/tailwind_form/* app/components/tailwind_form/"
+run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
 
 # remove the temporary directory
 run %(rm -rf #{tmp_dir})
