@@ -99,6 +99,15 @@ gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", "<%= render 
 # remove the temporary directory
 run %(rm -rf #{tmp_dir})
 
+# Set root route
+inject_into_file "config/routes.rb", "  root to: \"pages#home\"\n", after: "Rails.application.routes.draw do\n"
+
+run "bin/rails generate controller Pages home dashboard"
+
+run "mkdir -p app/views/pages"
+run "cp -r #{tmp_dir}/views/pages/* app/views/pages/"
+
+
 # Reset and prepare database
 ########################################
 run "bin/rails db:drop db:create db:migrate db:seed"
