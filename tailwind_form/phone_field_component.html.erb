@@ -1,0 +1,10 @@
+<fieldset class="fieldset">
+  <legend class="fieldset-legend"><%= label_text %> <%= " *" if required? %></legend>
+  <div class="w-full input" data-controller="intl-tel" data-intl-tel-input-name-value="<%= @input_name %>">
+    <input type="tel" data-intl-tel-target="input" value="<%= value %>">
+  </div>
+  <% if method_errors? %>
+    <p class="text-error"><%= method_errors.join(", ") %></p>
+  <% end %>
+</fieldset>
+<%= render_parent_to_string %>

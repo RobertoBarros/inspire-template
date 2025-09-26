@@ -1,4 +1,3 @@
-
 # Live reload with Hotwire Spark
 inject_into_file "Gemfile", after: "group :development, :test do\n" do
   <<~RUBY
@@ -39,6 +38,7 @@ end
 append_to_file "app/assets/stylesheets/application.css" do
   <<~CODE
 
+    /* Additional paths to be monitored by Tailwind */
     @source "../../../public/*.html";
     @source "../../../app/helpers/**/*.rb";
     @source "../../../app/javascript/**/*.js";
@@ -48,8 +48,35 @@ append_to_file "app/assets/stylesheets/application.css" do
   CODE
 end
 
+# ViewComponent for building reusable components
+inject_into_file "Gemfile", before: "group :development, :test do\n" do
+  <<~RUBY
+    # ViewComponent for building reusable components
+    gem "view_component"
+    # form builder for ViewComponent (compatible with ViewComponent 4)
+    gem "view_component-form", github: "DEfusion/view_component-form", branch: "view-component-4-support"
+  RUBY
+end
+run "bundle install --quiet"
+
+# Configure ApplicationController with authentication and default form builder
+inject_into_class "app/controllers/application_controller.rb", "ApplicationController" do
+  "  before_action :authenticate_user!\n  default_form_builder TailwindBuilder\n"
+end
+
+
+# Clone the Inspire repository for copy example code
+tmp_dir = "tmp/inspire-template-clone"
+repository = "https://github.com/RobertoBarros/inspire-template.git"
+run %(git clone --depth=1 #{repository} #{tmp_dir})
+
+# Copy tailwind-form components
+run "mkdir -p app/components/tailwind_form"
+run "cp #{tmp_dir}/app/components/tailwind_form/* app/components/tailwind_form/"
+
+# remove the temporary directory
+run %(rm -rf #{tmp_dir})
 
 # Reset and prepare database
 ########################################
-# Drops, creates, migrates and seeds the database to ensure a clean start
 run "bin/rails db:drop db:create db:migrate db:seed"

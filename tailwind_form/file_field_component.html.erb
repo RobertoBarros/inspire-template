@@ -1,0 +1,7 @@
+<fieldset class="fieldset">
+  <legend class="fieldset-legend"><%= label_text %> <%= " *" if required? %></legend>
+  <%= render_parent_to_string %>
+  <% if method_errors? %>
+    <p class="text-error"><%= method_errors.join(", ") %></p>
+  <% end %>
+</fieldset>
