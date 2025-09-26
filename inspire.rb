@@ -90,6 +90,7 @@ run %(git clone --depth=1 #{repository} #{tmp_dir})
 run "mkdir -p app/components/tailwind_form"
 run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
 run "cp #{tmp_dir}/helpers/* app/helpers/"
+run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
 
 # remove the temporary directory
 run %(rm -rf #{tmp_dir})
