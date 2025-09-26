@@ -90,7 +90,11 @@ run %(git clone --depth=1 #{repository} #{tmp_dir})
 run "mkdir -p app/components/tailwind_form"
 run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
 run "cp #{tmp_dir}/helpers/* app/helpers/"
+
+run "mkdir -p app/views/devise"
 run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
+
+gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", "<%= render user_signed_in? ? \"layouts/authenticated\" : \"layouts/unauthenticated\" %>"
 
 # remove the temporary directory
 run %(rm -rf #{tmp_dir})

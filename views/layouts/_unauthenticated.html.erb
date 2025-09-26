@@ -1,0 +1,13 @@
+<%= render "layouts/flashes" %>
+<div class="navbar bg-base-100 shadow-sm">
+  <div class="flex-1">
+    <%= link_to root_path, class: "" do %>
+      <%= image_tag "logo.png", class: "w-12" %>
+    <% end %>
+  </div>
+  <div class="flex-none">
+    <%#= vc LocaleDropdownComponent %>
+    <%= link_to "Enter", new_user_session_path, class: "btn btn-ghost" %>
+  </div>
+</div>
+<%= yield %>

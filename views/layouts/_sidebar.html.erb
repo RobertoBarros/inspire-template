@@ -1,0 +1,37 @@
+<div class="h-full bg-base-200 w-80 p-4 flex flex-col">
+  <div class="flex justify-center mb-10">
+    <%= link_to dashboard_path do %>
+      <%= image_tag "logo.png", class: 'w-16'  %>
+    <% end %>
+  </div>
+  <ul class="menu w-full">
+    <li>
+      <a>
+        <%#= icon "home", class: "size-5" %>
+        Item 2
+      </a>
+    </li>
+    <li>
+      <a>
+        <%#= icon "home", class: "size-5" %>
+        Item 3
+      </a>
+    </li>
+  </ul>
+  <div class="mt-auto">
+    <ul class="list bg-base-100 rounded-box shadow-md">
+      <li class="list-row">
+        <%#= link_to profiles_path do %>
+          <%#= vc AvatarComponent, name: current_user.name, image_url: current_user.avatar.url %>
+          <%# end %>
+          <div>
+            <div><%#= link_to_if current_user.name, current_user.name, profiles_path %></div>
+            <div class="text-xs font-bold">Nome da Empresa</div>
+            <div class="text-xs opacity-60">
+              <%= link_to "Sair", destroy_user_session_path, data: {turbo_method: :delete} %>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
