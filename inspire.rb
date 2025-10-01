@@ -95,9 +95,7 @@ run "mkdir -p app/views/devise"
 run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
 
 gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", "<%= render user_signed_in? ? \"layouts/authenticated\" : \"layouts/unauthenticated\" %>"
-
-# remove the temporary directory
-run %(rm -rf #{tmp_dir})
+run "cp -r #{tmp_dir}/views/layouts/_* app/views/layouts/"
 
 # Set root route
 inject_into_file "config/routes.rb", "  root to: \"pages#home\"\n", after: "Rails.application.routes.draw do\n"
@@ -106,7 +104,11 @@ run "bin/rails generate controller Pages home dashboard"
 
 run "mkdir -p app/views/pages"
 run "cp -r #{tmp_dir}/views/pages/* app/views/pages/"
+run "cp -r #{tmp_dir}/assets/images/* app/assets/images/"
 
+
+# remove the temporary directory
+run %(rm -rf #{tmp_dir})
 
 # Reset and prepare database
 ########################################
