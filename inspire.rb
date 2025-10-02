@@ -98,9 +98,17 @@ gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", "<%= render 
 run "cp -r #{tmp_dir}/views/layouts/_* app/views/layouts/"
 
 # Set root route
-inject_into_file "config/routes.rb", "  root to: \"pages#home\"\n", after: "Rails.application.routes.draw do\n"
+inject_into_file "config/routes.rb", <<-RUBY,
+  get "dashboard", to: "pages#dashboard", as: :dashboard
+  root to: "pages#home"
+RUBY
+  after: "Rails.application.routes.draw do\n"
 
-run "bin/rails generate controller Pages home dashboard"
+run "bin/rails generate controller Pages home dashboard --skip-routes"
+
+inject_into_class "app/controllers/pages_controller.rb", "PagesController" do
+  "  skip_before_action :authenticate_user!, only: :home\n\n"
+end
 
 run "mkdir -p app/views/pages"
 run "cp -r #{tmp_dir}/views/pages/* app/views/pages/"
