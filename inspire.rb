@@ -76,10 +76,19 @@ run "bin/rails generate devise:install"
 run "bin/rails generate devise User"
 
 # Configure ApplicationController with authentication and default form builder
-inject_into_class "app/controllers/application_controller.rb", "ApplicationController" do
-  "  before_action :authenticate_user!\n  default_form_builder TailwindBuilder\n"
-end
+inject_into_class "app/controllers/application_controller.rb", "ApplicationController", <<-RUBY
 
+  before_action :authenticate_user!
+  default_form_builder TailwindBuilder
+
+  def after_sign_in_path_for(resource_or_scope)
+    dashboard_path
+  end
+
+  def after_sign_out_path_for(resource_or_scope)
+    root_path
+  end
+RUBY
 
 # Clone the Inspire repository for copy example code
 tmp_dir = "tmp/inspire-template-clone"
