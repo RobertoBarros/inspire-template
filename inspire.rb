@@ -25,6 +25,17 @@ gsub_file "package.json", "application.tailwind.css", "application.css"
 
 run "mv app/assets/stylesheets/application.tailwind.css app/assets/stylesheets/application.css"
 
+# Rails Icons
+inject_into_file "Gemfile", before: "group :development, :test do\n" do
+  <<~RUBY
+    # Icons (Heroicons by default)
+    gem "rails_icons"
+
+  RUBY
+end
+run "bin/rails generate rails_icons:install --libraries=heroicons"
+
+
 # DaisyUI plugin for Tailwind
 run "yarn add daisyui@latest"
 append_to_file "app/assets/stylesheets/application.css" do

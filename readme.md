@@ -28,3 +28,7 @@ O framework de CSS Tailwind é instalado e configurado automaticamente usando o 
 O arquivo principal de estilos é `app/assets/stylesheets/application.css`
 
 ### DaisyUI
+
+### Icons
+
+Utiliza a gem `rails_icons` para facilitar o uso de ícones SVG em views e componentes. O set heroicons é instalado por padrão.

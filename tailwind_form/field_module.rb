@@ -6,7 +6,7 @@ module TailwindForm::FieldModule
         <label class="w-full input <%= "input-error" if method_errors? %>">
           <%= render_parent_to_string %>
           <% if method_errors? %>
-            <%= icon "exclamation-circle", class: "h-[1.5em] opacity-50 text-error" %>
+            <%= helpers.icon "exclamation-circle", class: "h-[1.5em] opacity-50 text-error" %>
           <% end %>
         </label>
         <% if method_errors? %>
