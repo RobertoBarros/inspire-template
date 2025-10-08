@@ -31,4 +31,12 @@ O arquivo principal de estilos é `app/assets/stylesheets/application.css`
 
 ### Icons
 
-Utiliza a gem `rails_icons` para facilitar o uso de ícones SVG em views e componentes. O set heroicons é instalado por padrão.
+Utiliza a gem `rails_icons` para facilitar o uso de ícones SVG em views e componentes. O set `heroicons` é instalado por padrão.
+
+### Flash Messages
+
+O template inclui um partial `_flashes.html.erb` para exibir mensagens de `notice` e `alert` de forma elegante, utilizando o controller Stimulus `"notification"`.
+
+O partial é automaticamente incluído no layout padrão da aplicação. Ele exibe toasts com transições suaves, desaparecendo após 4 segundos.
+
+Essas mensagens são renderizadas automaticamente quando você define `flash[:notice]` ou `flash[:alert]` em seus controllers.
