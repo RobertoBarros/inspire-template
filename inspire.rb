@@ -134,10 +134,25 @@ run "mkdir -p app/views/pages"
 run "cp -r #{tmp_dir}/views/pages/* app/views/pages/"
 run "cp -r #{tmp_dir}/assets/images/* app/assets/images/"
 
-
 # remove the temporary directory
 run %(rm -rf #{tmp_dir})
 
 # Reset and prepare database
 ########################################
 run "bin/rails db:drop db:create db:migrate db:seed"
+
+after_bundle do
+  # A Stimulus controller for showing notifications.
+  run "yarn add @stimulus-components/notification"
+  path = "app/javascript/controllers/application.js"
+  inject_into_file path, after: "const application = Application.start()\n" do
+    <<~JS
+      // Stimulus controller for showing notifications.
+      // see app/views/shared/_flashes.html.erb for usage
+      import Notification from "@stimulus-components/notification";
+      application.register("notification", Notification);
+
+    JS
+
+  end
+end
