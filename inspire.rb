@@ -20,6 +20,7 @@ inject_into_file "Gemfile", before: "group :development, :test do\n" do
 
   RUBY
 end
+run "bundle install --quiet"
 run "bin/rails css:install:tailwind"
 gsub_file "package.json", "application.tailwind.css", "application.css"
 
@@ -92,19 +93,19 @@ inject_into_class "app/controllers/application_controller.rb", "ApplicationContr
   before_action :authenticate_user!
   default_form_builder TailwindBuilder
 
-  def after_sign_in_path_for(resource_or_scope)
-    dashboard_path
-  end
-
-  def after_sign_out_path_for(resource_or_scope)
-    root_path
-  end
 RUBY
 
 # Clone the Inspire repository for copy example code
 tmp_dir = "tmp/inspire-template-clone"
-repository = "https://github.com/RobertoBarros/inspire-template.git"
-run %(git clone --depth=1 #{repository} #{tmp_dir})
+
+if ENV["INSPIRE_TEMPLATE_PATH"]
+  local_path = File.expand_path(ENV["INSPIRE_TEMPLATE_PATH"])
+  run "mkdir -p #{tmp_dir}"
+  run "cp -R #{local_path}/. #{tmp_dir}/"
+else
+  repository = "https://github.com/RobertoBarros/inspire-template.git"
+  run %(git clone --depth=1 #{repository} #{tmp_dir})
+end
 
 # Copy tailwind-form components and helpers
 run "mkdir -p app/components/tailwind_form"
@@ -119,8 +120,12 @@ run "cp -r #{tmp_dir}/views/layouts/_* app/views/layouts/"
 
 # Set root route
 inject_into_file "config/routes.rb", <<-RUBY,
-  get "dashboard", to: "pages#dashboard", as: :dashboard
+
+  authenticated :user do
+    root to: "pages#dashboard", as: :authenticated_root
+  end
   root to: "pages#home"
+
 RUBY
   after: "Rails.application.routes.draw do\n"
 
