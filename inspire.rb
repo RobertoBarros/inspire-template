@@ -160,4 +160,10 @@ after_bundle do
     JS
 
   end
+
+    # Git
+  ########################################
+  git :init
+  git add: "."
+  git commit: "-m 'Made with https://github.com/RobertoBarros/inspire-template'"
 end
