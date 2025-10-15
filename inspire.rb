@@ -1,3 +1,4 @@
+####################################################
 # Live reload with Hotwire Spark
 inject_into_file "Gemfile", after: "group :development, :test do\n" do
   <<~RUBY
@@ -12,6 +13,7 @@ inject_into_file "config/environments/development.rb",
   after: "Rails.application.configure do\n"
 
 
+####################################################
 # CSS with Tailwind via cssbundling-rails
 inject_into_file "Gemfile", before: "group :development, :test do\n" do
   <<~RUBY
@@ -23,30 +25,7 @@ end
 run "bundle install --quiet"
 run "bin/rails css:install:tailwind"
 gsub_file "package.json", "application.tailwind.css", "application.css"
-
 run "mv app/assets/stylesheets/application.tailwind.css app/assets/stylesheets/application.css"
-
-# Rails Icons
-inject_into_file "Gemfile", before: "group :development, :test do\n" do
-  <<~RUBY
-    # Icons (Heroicons by default)
-    gem "rails_icons"
-
-  RUBY
-end
-run "bin/rails generate rails_icons:install --libraries=heroicons"
-
-
-# DaisyUI plugin for Tailwind
-run "yarn add daisyui@latest"
-append_to_file "app/assets/stylesheets/application.css" do
-  <<~CODE
-
-    @plugin "daisyui" { themes: all; }
-  CODE
-end
-
-# Add additional paths to be monitored by tailwind
 append_to_file "app/assets/stylesheets/application.css" do
   <<~CODE
 
@@ -60,6 +39,32 @@ append_to_file "app/assets/stylesheets/application.css" do
   CODE
 end
 
+
+####################################################
+# DaisyUI plugin for Tailwind
+run "yarn add daisyui@latest"
+append_to_file "app/assets/stylesheets/application.css" do
+  <<~CODE
+
+    @plugin "daisyui" { themes: all; }
+  CODE
+end
+
+
+####################################################
+# Rails Icons
+inject_into_file "Gemfile", before: "group :development, :test do\n" do
+  <<~RUBY
+    # Icons (Heroicons by default)
+    gem "rails_icons"
+
+  RUBY
+end
+run "bin/rails generate rails_icons:install --libraries=heroicons"
+
+
+
+####################################################
 # ViewComponent for building reusable components
 inject_into_file "Gemfile", before: "group :development, :test do\n" do
   <<~RUBY
@@ -71,6 +76,8 @@ inject_into_file "Gemfile", before: "group :development, :test do\n" do
 end
 run "bundle install --quiet"
 
+
+####################################################
 # Devise for authentication
 inject_into_file "Gemfile", before: "group :development, :test do\n" do
   <<~RUBY
@@ -80,14 +87,12 @@ inject_into_file "Gemfile", before: "group :development, :test do\n" do
   RUBY
 end
 run "bundle install --quiet"
-
-# Install Devise and configure default URL options
 run "bin/rails generate devise:install"
-
-# Generate Devise User model
 run "bin/rails generate devise User"
 
-# Configure ApplicationController with authentication and default form builder
+
+####################################################
+# ApplicationController setup
 inject_into_class "app/controllers/application_controller.rb", "ApplicationController", <<-RUBY
 
   before_action :authenticate_user!
@@ -95,7 +100,8 @@ inject_into_class "app/controllers/application_controller.rb", "ApplicationContr
 
 RUBY
 
-# Clone the Inspire repository for copy example code
+####################################################
+# Clone the Inspire repository for copy template code
 tmp_dir = "tmp/inspire-template-clone"
 
 if ENV["INSPIRE_TEMPLATE_PATH"]
@@ -107,6 +113,7 @@ else
   run %(git clone --depth=1 #{repository} #{tmp_dir})
 end
 
+####################################################
 # Copy tailwind-form components and helpers
 run "mkdir -p app/components/tailwind_form"
 run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
@@ -118,7 +125,8 @@ run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
 gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", "<%= render user_signed_in? ? \"layouts/authenticated\" : \"layouts/unauthenticated\" %>"
 run "cp -r #{tmp_dir}/views/layouts/_* app/views/layouts/"
 
-# Set root route
+####################################################
+# Rails Routes
 inject_into_file "config/routes.rb", <<-RUBY,
 
   authenticated :user do
@@ -129,23 +137,28 @@ inject_into_file "config/routes.rb", <<-RUBY,
 RUBY
   after: "Rails.application.routes.draw do\n"
 
-run "bin/rails generate controller Pages home dashboard --skip-routes"
 
+####################################################
+# PagesController
+run "bin/rails generate controller Pages home dashboard --skip-routes"
 inject_into_class "app/controllers/pages_controller.rb", "PagesController" do
   "  skip_before_action :authenticate_user!, only: :home\n\n"
 end
-
 run "mkdir -p app/views/pages"
 run "cp -r #{tmp_dir}/views/pages/* app/views/pages/"
 run "cp -r #{tmp_dir}/assets/images/* app/assets/images/"
 
-# remove the temporary directory
-run %(rm -rf #{tmp_dir})
 
-# Reset and prepare database
 ########################################
+# Reset and prepare database
 run "bin/rails db:drop db:create db:migrate db:seed"
 
+# remove the temporary clone
+run %(rm -rf #{tmp_dir})
+
+
+########################################
+# After bundle tasks
 after_bundle do
   # A Stimulus controller for showing notifications.
   run "yarn add @stimulus-components/notification"
@@ -161,8 +174,7 @@ after_bundle do
 
   end
 
-    # Git
-  ########################################
+  # Initial Git commit
   git :init
   git add: "."
   git commit: "-m 'Made with https://github.com/RobertoBarros/inspire-template'"
