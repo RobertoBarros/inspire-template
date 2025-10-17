@@ -109,11 +109,26 @@ run "bin/rails generate devise User"
 ####################################################
 # ApplicationController setup
 inject_into_class "app/controllers/application_controller.rb", "ApplicationController", <<-RUBY
-
+  layout :layout_by_resource
   before_action :authenticate_user!
   default_form_builder TailwindBuilder
 
 RUBY
+
+inject_into_file "app/controllers/application_controller.rb", <<-RUBY,
+
+  private
+
+  def layout_by_resource
+    if devise_controller? && !user_signed_in?
+      "unauthenticated" # signin, signup, password pages
+    else
+      "application" # default layout with sidebar
+    end
+  end
+RUBY
+  before: "end"
+
 
 ####################################################
 # Clone the Inspire repository for copy template code
