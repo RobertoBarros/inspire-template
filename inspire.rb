@@ -11,33 +11,53 @@ def gsub_file_preserving_indent(file_path, pattern, replacement_content)
   File.write(file_path, new_content)
 end
 
+####################################################
+# Gemfile
+
+# Gems for all environments
+inject_into_file "Gemfile", before: "group :development, :test do\n" do
+<<-RUBY
+# ViewComponent for building reusable components
+gem "view_component"
+# form builder for ViewComponent (compatible with ViewComponent 4)
+gem "view_component-form", github: "DEfusion/view_component-form", branch: "view-component-4-support"
+# Devise for authentication
+gem "devise"
+# CSS with Tailwind via cssbundling-rails
+gem "cssbundling-rails"
+# Live reload with Hotwire Spark
+gem "hotwire-spark"
+# Icons (Heroicons by default)
+gem "rails_icons"
+
+RUBY
+end
+
+# Gems for development only
+inject_into_file "Gemfile", after: "group :development do\n" do
+<<-RUBY
+
+# Letter Opener for emails
+  gem "letter_opener"
+RUBY
+end
+
+run "bundle install --quiet" # Install the gems
 
 
 ####################################################
 # Live reload with Hotwire Spark
-inject_into_file "Gemfile", after: "group :development, :test do\n" do
-  <<~RUBY
-    gem "hotwire-spark"
-  RUBY
-end
 inject_into_file "config/environments/development.rb",
-  <<~RUBY,
-    # hotwire-spark monitoring path
-    config.hotwire.spark.html_paths += %w[ app/components ]
-  RUBY
+<<-RUBY,
+
+  # hotwire-spark monitoring path
+  config.hotwire.spark.html_paths += %w[ app/components ]
+RUBY
   after: "Rails.application.configure do\n"
 
 
 ####################################################
 # CSS with Tailwind via cssbundling-rails
-inject_into_file "Gemfile", before: "group :development, :test do\n" do
-  <<~RUBY
-    # CSS with Tailwind via cssbundling-rails
-    gem "cssbundling-rails"
-
-  RUBY
-end
-run "bundle install --quiet"
 run "bin/rails css:install:tailwind"
 gsub_file "package.json", "application.tailwind.css", "application.css"
 run "mv app/assets/stylesheets/application.tailwind.css app/assets/stylesheets/application.css"
@@ -68,55 +88,40 @@ end
 
 ####################################################
 # Rails Icons
-inject_into_file "Gemfile", before: "group :development, :test do\n" do
-  <<~RUBY
-    # Icons (Heroicons by default)
-    gem "rails_icons"
-
-  RUBY
-end
 run "bin/rails generate rails_icons:install --libraries=heroicons"
-
-
-
-####################################################
-# ViewComponent for building reusable components
-inject_into_file "Gemfile", before: "group :development, :test do\n" do
-  <<~RUBY
-    # ViewComponent for building reusable components
-    gem "view_component"
-    # form builder for ViewComponent (compatible with ViewComponent 4)
-    gem "view_component-form", github: "DEfusion/view_component-form", branch: "view-component-4-support"
-  RUBY
-end
-run "bundle install --quiet"
 
 
 ####################################################
 # Devise for authentication
-inject_into_file "Gemfile", before: "group :development, :test do\n" do
-  <<~RUBY
-    # Devise for authentication
-    gem "devise"
-
-  RUBY
-end
-run "bundle install --quiet"
 run "bin/rails generate devise:install"
 run "bin/rails generate devise User"
 
 
 ####################################################
+# Letter Opener for emails
+inject_into_file "config/environments/development.rb",
+<<-RUBY,
+
+  config.action_mailer.delivery_method = :letter_opener
+  config.action_mailer.perform_deliveries = true
+
+RUBY
+  after: "Rails.application.configure do\n"
+
+
+
+
+####################################################
 # ApplicationController setup
-inject_into_class "app/controllers/application_controller.rb", "ApplicationController", <<-RUBY
+inject_into_class "app/controllers/application_controller.rb", "ApplicationController",
+<<-RUBY
   layout :layout_by_resource
   before_action :authenticate_user!
   default_form_builder TailwindBuilder
-
 RUBY
 
-inject_into_file "app/controllers/application_controller.rb", <<-RUBY,
-
+inject_into_file "app/controllers/application_controller.rb",
+<<-RUBY,
   private
 
   def layout_by_resource
@@ -170,13 +175,13 @@ run "cp -r #{tmp_dir}/views/layouts/_* app/views/layouts/"
 
 ####################################################
 # Rails Routes
-inject_into_file "config/routes.rb", <<-RUBY,
+inject_into_file "config/routes.rb",
+<<-RUBY,
 
   authenticated :user do
     root to: "pages#dashboard", as: :authenticated_root
   end
   root to: "pages#home"
-
 RUBY
   after: "Rails.application.routes.draw do\n"
 
@@ -188,7 +193,8 @@ inject_into_class "app/controllers/pages_controller.rb", "PagesController" do
   "  skip_before_action :authenticate_user!, only: :home\n\n"
 end
 
-inject_into_file "app/controllers/pages_controller.rb", <<-RUBY,
+inject_into_file "app/controllers/pages_controller.rb",
+<<-RUBY,
 
     render layout: "unauthenticated" # Use this layout to not render sidebar
 RUBY
