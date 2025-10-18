@@ -12,6 +12,21 @@ def gsub_file_preserving_indent(file_path, pattern, replacement_content)
 end
 
 ####################################################
+# Clone the Inspire repository for copy template code
+tmp_dir = "tmp/inspire-template-clone"
+
+if ENV["INSPIRE_TEMPLATE_PATH"]
+  local_path = File.expand_path(ENV["INSPIRE_TEMPLATE_PATH"])
+  run "mkdir -p #{tmp_dir}"
+  run "cp -R #{local_path}/. #{tmp_dir}/"
+else
+  repository = "https://github.com/RobertoBarros/inspire-template.git"
+  run %(git clone --depth=1 #{repository} #{tmp_dir})
+end
+
+
+
+####################################################
 # Gemfile
 
 # Gems for all environments
@@ -29,6 +44,8 @@ gem "cssbundling-rails"
 gem "hotwire-spark"
 # Icons (Heroicons by default)
 gem "rails_icons"
+# Email inlined CSS
+gem "premailer-rails"
 
 RUBY
 end
@@ -96,9 +113,28 @@ run "bin/rails generate rails_icons:install --libraries=heroicons"
 run "bin/rails generate devise:install"
 run "bin/rails generate devise User"
 
+gsub_file "config/initializers/devise.rb", "# config.mailer = 'Devise::Mailer'", "config.mailer = \"DeviseMailer\""
+
+create_file "app/mailers/devise_mailer.rb",
+<<-RUBY
+  class DeviseMailer < Devise::Mailer
+    helper :application
+    include Devise::Controllers::UrlHelpers
+    default template_path: "devise/mailer"
+    layout "mailer"
+  end
+RUBY
+
+# Copy devise views
+run "mkdir -p app/views/devise"
+run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
+
+
 
 ####################################################
-# Letter Opener for emails
+# Email config
+
+# Development environment - Letter Opener
 inject_into_file "config/environments/development.rb",
 <<-RUBY,
 
@@ -107,6 +143,10 @@ inject_into_file "config/environments/development.rb",
   config.action_mailer.perform_deliveries = true
 RUBY
   after: "Rails.application.configure do\n"
+
+# copy mailer layout and stylesheet
+run "cp #{tmp_dir}/views/layouts/mailer.html.erb app/views/layouts/mailer.html.erb"
+run "cp #{tmp_dir}/assets/stylesheets/mailer.css app/assets/stylesheets/mailer.css"
 
 
 ####################################################
@@ -133,18 +173,6 @@ RUBY
   before: "end"
 
 
-####################################################
-# Clone the Inspire repository for copy template code
-tmp_dir = "tmp/inspire-template-clone"
-
-if ENV["INSPIRE_TEMPLATE_PATH"]
-  local_path = File.expand_path(ENV["INSPIRE_TEMPLATE_PATH"])
-  run "mkdir -p #{tmp_dir}"
-  run "cp -R #{local_path}/. #{tmp_dir}/"
-else
-  repository = "https://github.com/RobertoBarros/inspire-template.git"
-  run %(git clone --depth=1 #{repository} #{tmp_dir})
-end
 
 ####################################################
 # Copy tailwind-form components and helpers
@@ -152,14 +180,17 @@ run "mkdir -p app/components/tailwind_form"
 run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
 run "cp #{tmp_dir}/helpers/* app/helpers/"
 
-run "mkdir -p app/views/devise"
-run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
 
 
 ####################################################
 # Layouts
 
 # duplicate application layout to create an unauthenticated layout
+#
+#
+gsub_file "app/views/layouts/application.html.erb", "<%# Includes all stylesheet files in app/assets/stylesheets %>", "<%# Include only stylesheet in app/assets/stylesheets/application.css - Use @import to add additional stylesheets´ %>"
+gsub_file "app/views/layouts/application.html.erb", "stylesheet_link_tag :app", "stylesheet_link_tag \"application\""
+
 run "cp app/views/layouts/application.html.erb app/views/layouts/unauthenticated.html.erb"
 
 unauthenticated_body = File.read("#{tmp_dir}/views/layouts/unauthenticated_body.html.erb")
