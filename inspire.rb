@@ -35,7 +35,7 @@ inject_into_file "Gemfile", before: "group :development, :test do\n" do
 # ViewComponent for building reusable components
 gem "view_component"
 # form builder for ViewComponent (compatible with ViewComponent 4)
-gem "view_component-form", github: "DEfusion/view_component-form", branch: "view-component-4-support"
+gem "view_component-form"
 # Devise for authentication
 gem "devise"
 # CSS with Tailwind via cssbundling-rails
