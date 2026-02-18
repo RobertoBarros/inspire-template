@@ -129,7 +129,16 @@ RUBY
 run "mkdir -p app/views/devise"
 run "cp -r #{tmp_dir}/views/devise/* app/views/devise/"
 
+# Default admin user seed
+append_to_file "db/seeds.rb" do
+  <<~RUBY
 
+    User.find_or_create_by!(email: "admin@admin.com") do |user|
+      user.password = "123123"
+      user.password_confirmation = "123123"
+    end
+  RUBY
+end
 
 ####################################################
 # Email config
