@@ -42,6 +42,11 @@ O template instala e configura i18n com abordagem híbrida:
 
 Idiomas padrão: `pt-BR`, `en`, `es`.
 
+### Seletor de idioma na navbar
+
+O template inclui `LocaleDropdownComponent` (`app/components/locale_dropdown_component.*`) e renderiza o seletor de idioma nas navbars de layout autenticado e não autenticado.
+As bandeiras são carregadas de `app/assets/images/flags/*.svg`.
+
 ### Flash Messages
 
 O template inclui um partial `_flashes.html.erb` para exibir mensagens de `notice` e `alert` de forma elegante, utilizando o controller Stimulus `"notification"`.

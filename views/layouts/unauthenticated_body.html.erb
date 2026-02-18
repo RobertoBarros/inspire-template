@@ -5,7 +5,8 @@
       <%= image_tag "logo.png", class: "w-12" %>
     <% end %>
   </div>
-  <div class="flex-none">
+  <div class="flex-none gap-2">
+    <%= vc LocaleDropdownComponent %>
     <%= link_to _("Enter"), new_user_session_path, class: "btn btn-ghost" %>
   </div>
 </div>

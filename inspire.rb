@@ -38,6 +38,7 @@ gem "view_component"
 gem "view_component-form"
 # Devise for authentication
 gem "devise"
+gem 'devise-i18n'
 # CSS with Tailwind via cssbundling-rails
 gem "cssbundling-rails"
 # Live reload with Hotwire Spark
@@ -280,6 +281,7 @@ RUBY
 # Copy tailwind-form components and helpers
 run "mkdir -p app/components/tailwind_form"
 run "cp #{tmp_dir}/tailwind_form/* app/components/tailwind_form/"
+run "cp #{tmp_dir}/components/* app/components/"
 run "cp #{tmp_dir}/helpers/* app/helpers/"
 
 

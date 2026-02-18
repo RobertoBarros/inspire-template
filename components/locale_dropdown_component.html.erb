@@ -1,0 +1,15 @@
+<div class="dropdown dropdown-end">
+  <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+    <%= image_tag("flags/#{I18n.locale}.svg", class: "size-5") %>
+  </div>
+  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 mt-2 w-52 p-2 shadow-sm">
+    <% I18n.available_locales.each do |locale| %>
+      <li>
+        <%= link_to url_for(locale: locale), role: "menuitem" do %>
+          <%= image_tag("flags/#{locale}.svg", class: "size-5") %>
+          <%= t(locale, scope: "locales") %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>
