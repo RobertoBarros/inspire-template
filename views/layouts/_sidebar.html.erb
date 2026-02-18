@@ -8,13 +8,13 @@
     <li>
       <a>
         <%= icon "home", class: "size-5" %>
-        Item 2
+        <%= _("Item 2") %>
       </a>
     </li>
     <li>
       <a>
         <%= icon "home", class: "size-5" %>
-        Item 3
+        <%= _("Item 3") %>
       </a>
     </li>
   </ul>
@@ -26,9 +26,9 @@
           <%# end %>
           <div>
             <div><%#= link_to_if current_user.name, current_user.name, profiles_path %></div>
-            <div class="text-xs font-bold">Nome da Empresa</div>
+            <div class="text-xs font-bold"><%= _("Company Name") %></div>
             <div class="text-xs opacity-60">
-              <%= link_to "Sair", destroy_user_session_path, data: {turbo_method: :delete} %>
+              <%= link_to _("Sign out"), destroy_user_session_path, data: { turbo_method: :delete } %>
             </div>
           </div>
         </li>

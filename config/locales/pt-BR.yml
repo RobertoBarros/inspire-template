@@ -1,0 +1,14 @@
+pt-BR:
+  activerecord:
+    models:
+      user: Usuário
+    attributes:
+      user:
+        email: E-mail
+        password: Senha
+        password_confirmation: Confirmar senha
+        remember_me: Lembrar-me
+  locales:
+    en: English
+    pt-BR: Português BR
+    es: Español

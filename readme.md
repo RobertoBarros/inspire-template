@@ -33,6 +33,15 @@ O arquivo principal de estilos é `app/assets/stylesheets/application.css`
 
 Utiliza a gem `rails_icons` para facilitar o uso de ícones SVG em views e componentes. O set `heroicons` é instalado por padrão.
 
+### Internacionalização (i18n)
+
+O template instala e configura i18n com abordagem híbrida:
+- `gettext_i18n_rails` + `gettext` para textos de interface (`locale/*/app.po`)
+- `rails-i18n` + YAML para ActiveRecord e traduções gerais (`config/locales/*.yml`)
+- `scope "(:locale)"` nas rotas e concern `Internationalization` no `ApplicationController`
+
+Idiomas padrão: `pt-BR`, `en`, `es`.
+
 ### Flash Messages
 
 O template inclui um partial `_flashes.html.erb` para exibir mensagens de `notice` e `alert` de forma elegante, utilizando o controller Stimulus `"notification"`.

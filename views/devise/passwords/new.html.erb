@@ -1,11 +1,11 @@
 <div class="container mx-auto flex justify-center items-center min-h-[calc(100vh-68px)]">
   <div class="card w-96 bg-base-200 shadow-sm">
     <div class="card-body">
-      <h2 class="card-title">Esqueceu a senha?</h2>
-      <p class="text-info text-xs">Informe o seu e-mail para receber o link de recuperação de senha</p>
+      <h2 class="card-title"><%= _("Forgot your password?") %></h2>
+      <p class="text-info text-xs"><%= _("Provide your email to receive password recovery instructions.") %></p>
       <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-6" }) do |f| %>
         <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-        <%= f.submit "Enviar e-mail de recuperação de senha" %>
+        <%= f.submit _("Send password recovery email") %>
       <% end %>
     </div>
   </div>

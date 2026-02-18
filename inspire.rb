@@ -46,6 +46,11 @@ gem "hotwire-spark"
 gem "rails_icons"
 # Email inlined CSS
 gem "premailer-rails"
+# GetText for UI translation strings
+gem "gettext_i18n_rails"
+gem "gettext", ">=3.0.2", require: false
+# Rails I18n defaults (dates, numbers, etc.)
+gem "rails-i18n"
 
 RUBY
 end
@@ -159,9 +164,97 @@ run "cp #{tmp_dir}/assets/stylesheets/mailer.css app/assets/stylesheets/mailer.c
 
 
 ####################################################
+# Internationalization (GetText + Rails I18n)
+inject_into_class "config/application.rb", "Application",
+<<-RUBY
+    config.i18n.available_locales = %i[pt-BR en es]
+    config.i18n.default_locale = :"pt-BR"
+RUBY
+
+create_file "config/initializers/gettext_i18n_rails.rb",
+<<-RUBY
+  FastGettext.add_text_domain "app", path: "locale", type: :po
+  FastGettext.default_available_locales = ["pt_BR", "en", "es"]
+  FastGettext.default_text_domain = "app"
+
+  # We keep ActiveRecord attribute translations in config/locales/*.yml
+  Rails.application.config.gettext_i18n_rails.use_for_active_record_attributes = false
+RUBY
+
+
+run "mkdir -p app/controllers/concerns"
+create_file "app/controllers/concerns/internationalization.rb",
+<<-RUBY
+  module Internationalization
+    extend ActiveSupport::Concern
+
+    included do
+      around_action :switch_locale
+
+      private
+
+      def switch_locale(&action)
+        locale = locale_from_url || locale_from_headers || I18n.default_locale
+        response.set_header "Content-Language", locale
+        I18n.with_locale locale, &action
+      end
+
+      def locale_from_url
+        locale = params[:locale]
+        locale if I18n.available_locales.map(&:to_s).include?(locale)
+      end
+
+      def locale_from_headers
+        header = request.env["HTTP_ACCEPT_LANGUAGE"]
+        return if header.nil?
+
+        locales = parse_header(header)
+        return if locales.empty?
+
+        detect_from_available(locales)
+      end
+
+      def parse_header(header)
+        header.gsub(/\\s+/, "").split(",").map do |language_tag|
+          locale, quality = language_tag.split(/;q=/i)
+          quality = quality ? quality.to_f : 1.0
+          [locale, quality]
+        end.reject do |(locale, quality)|
+          locale == "*" || quality.zero?
+        end.sort_by do |(_, quality)|
+          quality
+        end.map(&:first)
+      end
+
+      def detect_from_available(locales)
+        locales.reverse.find { |l| I18n.available_locales.any? { |al| match?(al, l) } }
+      end
+
+      def match?(str1, str2)
+        str1.to_s.casecmp(str2.to_s).zero?
+      end
+
+      def default_url_options
+        { locale: I18n.locale }
+      end
+    end
+  end
+RUBY
+
+run "mkdir -p config/locales"
+
+run "cp #{tmp_dir}/config/locales/*.yml config/locales"
+
+run "mkdir -p locale"
+run "LANGUAGE=pt_BR rake gettext:add_language"
+run "LANGUAGE=en rake gettext:add_language"
+run "LANGUAGE=es rake gettext:add_language"
+
+####################################################
 # ApplicationController setup
 inject_into_class "app/controllers/application_controller.rb", "ApplicationController",
 <<-RUBY
+  include Internationalization
   layout :layout_by_resource
   before_action :authenticate_user!
   default_form_builder TailwindBuilder
@@ -197,7 +290,7 @@ run "cp #{tmp_dir}/helpers/* app/helpers/"
 # duplicate application layout to create an unauthenticated layout
 #
 #
-gsub_file "app/views/layouts/application.html.erb", "<%# Includes all stylesheet files in app/assets/stylesheets %>", "<%# Include only stylesheet in app/assets/stylesheets/application.css - Use @import to add additional stylesheets´ %>"
+gsub_file "app/views/layouts/application.html.erb", "<%# Includes all stylesheet files in app/assets/stylesheets %>", "<%# Include only stylesheet in app/assets/stylesheets/application.css - Use @import to add additional stylesheets %>"
 gsub_file "app/views/layouts/application.html.erb", "stylesheet_link_tag :app", "stylesheet_link_tag \"application\""
 
 run "cp app/views/layouts/application.html.erb app/views/layouts/unauthenticated.html.erb"
@@ -213,15 +306,21 @@ run "cp -r #{tmp_dir}/views/layouts/_* app/views/layouts/"
 
 ####################################################
 # Rails Routes
-inject_into_file "config/routes.rb",
+create_file "config/routes.rb",
 <<-RUBY,
+Rails.application.routes.draw do
+  scope "(:locale)", locale: /\#{I18n.available_locales.join("|")}/ do
+    devise_for :users
 
-  authenticated :user do
-    root to: "pages#dashboard", as: :authenticated_root
+    authenticated :user do
+      root to: "pages#dashboard", as: :authenticated_root
+    end
+
+    root to: "pages#home"
   end
-  root to: "pages#home"
+end
 RUBY
-  after: "Rails.application.routes.draw do\n"
+  force: true
 
 
 ####################################################
@@ -254,6 +353,8 @@ run "bin/rails db:drop db:create db:migrate db:seed"
 # remove the temporary clone
 run %(rm -rf #{tmp_dir})
 
+# Generate translation template file
+run "rake gettext:find"
 
 ####################################################
 # After bundle tasks

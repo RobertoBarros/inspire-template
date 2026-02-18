@@ -1,20 +1,20 @@
 <div class="container mx-auto flex justify-center items-center min-h-[calc(100vh-68px)]">
   <div class="card w-96 bg-base-200 shadow-2xl">
     <div class="card-body">
-      <h2 class="card-title"><%= "Create" %></h2>
+      <h2 class="card-title"><%= _("Create") %></h2>
       <%= form_for resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6" } do |f| %>
         <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
         <%= f.password_field :password, autocomplete: "new-password" %>
         <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-        <%= f.submit "Create" %>
+        <%= f.submit _("Create") %>
       <% end %>
       <p class="mt-10">
-        <%= "Have an account?" %>
-        <%= link_to "Enter", new_session_path(resource_name), class: "link" %>
+        <%= _("Have an account?") %>
+        <%= link_to _("Enter"), new_session_path(resource_name), class: "link" %>
       </p>
       <p class="mt-5">
-        <%= "Forgot your password?" %>
-        <%= link_to "Retrieve", new_password_path(resource_name), class: "link" %>
+        <%= _("Forgot your password?") %>
+        <%= link_to _("Retrieve"), new_password_path(resource_name), class: "link" %>
       </p>
     </div>
   </div>
