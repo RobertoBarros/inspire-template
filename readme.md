@@ -54,3 +54,17 @@ O template inclui um partial `_flashes.html.erb` para exibir mensagens de `notic
 O partial é automaticamente incluído no layout padrão da aplicação. Ele exibe toasts com transições suaves, desaparecendo após 4 segundos.
 
 Essas mensagens são renderizadas automaticamente quando você define `flash[:notice]` ou `flash[:alert]` em seus controllers.
+
+### Testes com Devise
+
+Para rodar os testes:
+
+```bash
+bin/rails test
+```
+
+Para rodar apenas os testes de integração:
+
+```bash
+bin/rails test test/integration
+```

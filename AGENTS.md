@@ -28,6 +28,7 @@ As mudancas aqui impactam projetos novos gerados pelo script.
 - Em views ERB, mantenha padrao existente com Tailwind/DaisyUI.
 - Evite alterar comportamento global sem justificativa (ex.: `ActionView::Base.field_error_proc`).
 - Nao remova funcionalidades base esperadas: Devise, layouts auth/unauth, flashes com Stimulus notification.
+- Em testes de integracao, prefira validar por URL/rota (ex.: `path`, `assert_redirected_to`) em vez de texto renderizado na pagina.
 
 ## Checklist antes de concluir
 1. Validar sintaxe Ruby:

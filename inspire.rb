@@ -121,6 +121,15 @@ run "bin/rails generate devise User"
 
 gsub_file "config/initializers/devise.rb", "# config.mailer = 'Devise::Mailer'", "config.mailer = \"DeviseMailer\""
 
+inject_into_file "test/test_helper.rb", after: "require \"rails/test_help\"\n" do
+<<-RUBY
+
+class ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+end
+RUBY
+end
+
 create_file "app/mailers/devise_mailer.rb",
 <<-RUBY
   class DeviseMailer < Devise::Mailer
@@ -341,6 +350,11 @@ RUBY
 
 run "mkdir -p app/views/pages"
 run "cp -r #{tmp_dir}/views/pages/* app/views/pages/"
+
+####################################################
+# Minitest
+run "mkdir -p test"
+run "cp -r #{tmp_dir}/tests/* test/"
 
 
 ####################################################
